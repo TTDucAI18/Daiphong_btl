@@ -8,10 +8,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.BufferedReader;
@@ -21,6 +19,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.lang.*;
+import java.util.List;
 
 public class HelloController {
     @FXML
@@ -59,14 +58,26 @@ public class HelloController {
         }
     }
     @FXML
+//    public void onClick(){
+//        String typedWord = textField.getText();
+//        for (String key:words.keySet()){
+//            if (key.charAt(0) == typedWord.charAt(0)){
+//                listView.getItems().add(key);
+//            }
+//        }
+//
+//    }
     public void onClick(){
-        String typedWord = textField.getText();
-        for (String key:words.keySet()){
-            if (key.charAt(0) == typedWord.charAt(0)){
+        String typedWord = textField.getText().toLowerCase();
+        listView.getItems().clear();
+        for (String key : words.keySet()) {
+            if (key.toLowerCase().startsWith(typedWord)) {
                 listView.getItems().add(key);
             }
         }
     }
+
+
     @FXML
     public void OnSearchClick(){
         String typedWord = textField.getText();
@@ -77,5 +88,15 @@ public class HelloController {
                 // listView.getItems().add(key); can phai them vao dau
             }
         }
+
+    }
+@FXML
+    public void OnDeleteClick() {
+        Button bt = new Button();
+            textField.clear(); // Xóa nội dung của TextField
+            listView.getItems().clear(); // Xóa tất cả các mục trong ListView
+            textArea.getItems().clear();
+        StackPane root = new StackPane();
+        root.getChildren().add(bt);
     }
 }
