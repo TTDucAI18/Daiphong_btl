@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.lang.*;
@@ -25,12 +26,18 @@ public class HelloController {
     @FXML
     private TextField textField;
     @FXML
-    private ListView listView;
+    private ListView<String> listView;
     @FXML
     private ListView textArea;
-    HashMap<String,String> words = new HashMap<>();
     @FXML
-    public void onOpenClick(){
+    private Button sayWelcome;
+    @FXML
+    private Stack<String> stk = new Stack<>();
+    HashMap<String, String> words = new HashMap<>();
+
+    @FXML
+    public void onOpenClick() {
+        sayWelcome.setText("WELCOME TO THE DICTIONARY");
         try {
             String filePath = "D:\\code\\oop\\demo2\\src\\main\\java\\com\\example\\demo2\\E_V.txt";
 
@@ -51,51 +58,57 @@ public class HelloController {
             while (matcher.find()) {
                 String word = matcher.group(1);
                 String meaning = matcher.group(3);
-                words.put(word,meaning);
+                words.put(word, meaning);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    @FXML
-//    public void onClick(){
-//        String typedWord = textField.getText();
-//        for (String key:words.keySet()){
-//            if (key.charAt(0) == typedWord.charAt(0)){
-//                listView.getItems().add(key);
-//            }
-//        }
-//
-//    }
-    public void onClick(){
-        String typedWord = textField.getText().toLowerCase();
-        listView.getItems().clear();
-        for (String key : words.keySet()) {
-            if (key.toLowerCase().startsWith(typedWord)) {
-                listView.getItems().add(key);
-            }
-        }
-    }
-
 
     @FXML
-    public void OnSearchClick(){
+    public void onClick() {
         String typedWord = textField.getText();
-        for (String key:words.keySet()){
-            if (key.contains(typedWord)){
-                textArea.getItems().add("  -  "+key);
-                textArea.getItems().add("        "+words.get(key));
-                // listView.getItems().add(key); can phai them vao dau
+
+        listView.getItems().clear();
+
+        for (String key : words.keySet()) {
+            if (key.startsWith(typedWord)) {
+                listView.getItems().add(0, key);
             }
         }
-
+        listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                textField.setText(newValue); // Thiết lập văn bản trong TextField thành từ được chọn
+            }
+        });
     }
-@FXML
+
+
+    @FXML
+    public void OnSearchClick() {
+        String typedWord = textField.getText();
+        ObservableList<String> items = listView.getItems();
+        for (String item:items){
+            if (items.contains(typedWord)){
+                textArea.getItems().add("  -  " + item);
+                textArea.getItems().add("        " + words.get(item));
+            }
+        }
+        if (!stk.contains(typedWord)) {
+            stk.push(typedWord);
+        }
+    }
+
+    @FXML
     public void OnDeleteClick() {
         Button bt = new Button();
-            textField.clear(); // Xóa nội dung của TextField
-            listView.getItems().clear(); // Xóa tất cả các mục trong ListView
-            textArea.getItems().clear();
+        textField.clear(); // Xóa nội dung của TextField
+        listView.getItems().clear(); // Xóa tất cả các mục trong ListView
+        if (!stk.empty())
+            for (String str : stk) {
+                listView.getItems().add(0,str);
+            }
+        textArea.getItems().clear();
         StackPane root = new StackPane();
         root.getChildren().add(bt);
     }
