@@ -1,5 +1,7 @@
 package com.example.demo2;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -9,8 +11,9 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.StackPane;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
+import kotlin.Pair;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -19,8 +22,6 @@ import java.util.HashMap;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.lang.*;
-import java.util.List;
 
 public class HelloController {
     @FXML
@@ -32,15 +33,20 @@ public class HelloController {
     @FXML
     private Button sayWelcome;
     @FXML
-    private Stack<String> stk = new Stack<>();
-    HashMap<String, String> words = new HashMap<>();
+    private Button button;
+    private HashMap<String, Pair> words = new HashMap<>();
+    private Stack<String> st = new Stack<>();
+    String currentWord;
+    private String typedWord;
 
     @FXML
     public void onOpenClick() {
-        sayWelcome.setText("WELCOME TO THE DICTIONARY");
+        sayWelcome.setText("WELCOME TO THE ENGLISH VIETNAMESE DICTIONARY");
         try {
+            // Đường dẫn tới file HTML của bạn
             String filePath = "D:\\code\\oop\\demo2\\src\\main\\java\\com\\example\\demo2\\E_V.txt";
 
+            // Đọc file HTML
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
             StringBuilder content = new StringBuilder();
             String line;
@@ -53,12 +59,22 @@ public class HelloController {
             Pattern pattern = Pattern.compile("<html><i>(.*?)</i><br/><ul><li><b><i>(.*?)</i></b><ul><li><font color='#cc0000'><b>(.*?)</b></font>");
             Matcher matcher = pattern.matcher(content.toString());
 
-            String[] parts = matcher.pattern().split("<html>");
             // Duyệt qua các kết quả và in ra màn hình
             while (matcher.find()) {
+                String pronoun = "";
                 String word = matcher.group(1);
+                if (word.contains("/")) {
+                    pronoun = word.substring(word.indexOf('/'));
+                    char c = word.charAt(0);
+                    word = word.substring(word.indexOf(c), word.indexOf('/')).trim();
+                }
+                if (word.contains("<")) {
+                    pronoun = word.substring(word.indexOf('<') + 1);
+                    word = word.substring(0, word.indexOf('<')).trim();
+                }
                 String meaning = matcher.group(3);
-                words.put(word, meaning);
+                Pair pair = new Pair(pronoun, meaning);
+                words.put(word, pair);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -67,13 +83,12 @@ public class HelloController {
 
     @FXML
     public void onClick() {
-        String typedWord = textField.getText();
-
+        typedWord = textField.getText();
+        typedWord = typedWord.toLowerCase();
         listView.getItems().clear();
-
         for (String key : words.keySet()) {
             if (key.startsWith(typedWord)) {
-                listView.getItems().add(0, key);
+                listView.getItems().addFirst(key);
             }
         }
         listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -81,35 +96,48 @@ public class HelloController {
                 textField.setText(newValue); // Thiết lập văn bản trong TextField thành từ được chọn
             }
         });
-    }
 
+        textField.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                OnSearchClick();
+            }
+        });
+        listView.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                OnSearchClick();
+            }
+        });
+    }
 
     @FXML
     public void OnSearchClick() {
-        String typedWord = textField.getText();
-        ObservableList<String> items = listView.getItems();
-        for (String item:items){
-            if (items.contains(typedWord)){
-                textArea.getItems().add("  -  " + item);
-                textArea.getItems().add("        " + words.get(item));
-            }
+        typedWord = textField.getText();
+        typedWord = typedWord.toLowerCase();
+        if (textArea.getItems().contains("  -  " + typedWord + " " + words.get(typedWord).getFirst())) {
+            return;
         }
-        if (!stk.contains(typedWord)) {
-            stk.push(typedWord);
+        if (typedWord.isEmpty()) {
+            textArea.getItems().add("ENSURE TO TYPE OR CHOOSE A WORD FIRST. PLEASE TRY AGAIN");
+        } else if (words.containsKey(typedWord)) {
+            textArea.getItems().add("  -  " + typedWord + " " + words.get(typedWord).getFirst());
+            textArea.getItems().add("        " + words.get(typedWord).getSecond());
+            if (!st.contains(typedWord)) {
+                st.add(typedWord);
+            }
+        } else {
+            textArea.getItems().add("SORRY :( " + "\n" + "WE DO NOT FIND OUT THE WORD YOU WANT TO LOOK FOR :(" + "\n"
+                    + "PLEASE CHECK THE SPELLING. IF IT IS FALSE, PLEASE TRY AGAIN." + "\n" + "OTHERWISE WE SUGGEST THE ADDING WORD METHOD");
         }
     }
 
     @FXML
     public void OnDeleteClick() {
-        Button bt = new Button();
-        textField.clear(); // Xóa nội dung của TextField
-        listView.getItems().clear(); // Xóa tất cả các mục trong ListView
-        if (!stk.empty())
-            for (String str : stk) {
-                listView.getItems().add(0,str);
-            }
+        textField.clear();
+        listView.getItems().clear();
         textArea.getItems().clear();
-        StackPane root = new StackPane();
-        root.getChildren().add(bt);
+        for (String x : st) {
+            listView.getItems().addFirst(x);
+        }
     }
+
 }
