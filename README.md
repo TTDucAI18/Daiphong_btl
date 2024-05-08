@@ -14,7 +14,7 @@ The application is designed to support learning English. The application is writ
 4. The application use E_V.txt files to store data.
 
 ## UML diagram
-![UML diagram](
+![UML diagram](https://github.com/TTDucAI18/Daiphong_btl/blob/main/daiphong/pic/umldiagram.png)
 
 ## Installation
 1. Clone the project from the repository.
