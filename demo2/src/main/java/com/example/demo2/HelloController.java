@@ -37,7 +37,7 @@ public class HelloController extends interfaceApp {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
             // Đường dẫn tới file HTML của bạn
-            String filePath = "D:\\code\\oop\\demo2\\src\\main\\java\\com\\example\\demo2\\E_V.txt";
+            String filePath = "src\\main\\java\\com\\example\\demo2\\E_V.txt";
 
             // Đọc file HTML
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
@@ -104,6 +104,7 @@ public class HelloController extends interfaceApp {
 
     @FXML
     public void OnSearchClick() {
+        textArea.getItems().clear();
         typedWord = textField.getText();
         typedWord = typedWord.toLowerCase();
         if (textArea.getItems().contains("  -  " + typedWord + " " + words.get(typedWord).getFirst())) {
@@ -160,6 +161,8 @@ public class HelloController extends interfaceApp {
         }
     }
 
+
+
     @FXML
     public void onSpeechClick() {
         typedWord = textField.getText();
@@ -209,49 +212,51 @@ public class HelloController extends interfaceApp {
     @FXML
     public void onSynClick() {
         String apiKey = "2963719886msh8f3612d6a989751p14758djsn3c6e494bdb92";
+        if (textField.getText().isEmpty()) textArea.getItems().add("PLEASE TYPE WORD FIRST");
+        else {
+            if (!textArea.getItems().isEmpty()) textArea.getItems().clear();
+            try {
 
-        try {
+                String apiUrl = "https://synonyms-spintax-generator-for-article-spinner.p.rapidapi.com/data";
+                URI uri = URI.create(apiUrl);
 
-            String apiUrl = "https://synonyms-spintax-generator-for-article-spinner.p.rapidapi.com/data";
-            URI uri = URI.create(apiUrl);
+                HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+                connection.setRequestMethod("POST");
 
-            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
-            connection.setRequestMethod("POST");
+                // Set request headers
+                connection.setRequestProperty("content-type", "application/x-www-form-urlencoded");
+                connection.setRequestProperty("X-RapidAPI-Key", apiKey);
+                connection.setRequestProperty("X-RapidAPI-Host", "synonyms-spintax-generator-for-article-spinner.p.rapidapi.com");
 
-            // Set request headers
-            connection.setRequestProperty("content-type", "application/x-www-form-urlencoded");
-            connection.setRequestProperty("X-RapidAPI-Key", apiKey);
-            connection.setRequestProperty("X-RapidAPI-Host", "synonyms-spintax-generator-for-article-spinner.p.rapidapi.com");
+                String requestBody = "article=" + textField.getText();
+                connection.setDoOutput(true);
+                connection.getOutputStream().write(requestBody.getBytes());
 
-            String requestBody = "article=" + textField.getText();
-            connection.setDoOutput(true);
-            connection.getOutputStream().write(requestBody.getBytes());
+                // Get the response
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    String line;
+                    StringBuilder response = new StringBuilder();
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                    reader.close();
 
-            // Get the response
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                String line;
-                StringBuilder response = new StringBuilder();
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
-                reader.close();
+                    String[] words = response.substring(1, response.length() - 1).split("\\|");
+                    for (String x : words) {
+                        textArea.getItems().add(x);
+                    }
 
-                String[] words = response.substring(1, response.length() - 1).split("\\|");
-                for (String x:words){
-                    textArea.getItems().add(x);
-                }
-
-            } else {
+                } else {
 //                System.err.println("Error response code: " + responseCode);
-                textArea.getItems().add("NOT FOUND");
+                    textArea.getItems().add("NOT FOUND");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
-
     public void addmap(HashMap<String,Pair> words){
         this.words = words;
     }
