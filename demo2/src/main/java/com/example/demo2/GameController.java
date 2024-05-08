@@ -179,7 +179,7 @@ public class GameController extends interfaceGame {
         timeline.play();
         BufferedReader reader = null;
         try {
-            String filePath = "C:\\Users\\DELL\\IdeaProjects\\demo2\\src\\main\\java\\com\\example\\demo2\\cauhoi.txt";
+            String filePath = "src/main/java/com/example/demo2/cauhoi.txt";
             reader = new BufferedReader(new FileReader(filePath));
             String line;
             StringBuilder ques = new StringBuilder();
