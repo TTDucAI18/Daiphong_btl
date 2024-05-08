@@ -37,7 +37,7 @@ public class HelloController extends interfaceApp {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
             // Đường dẫn tới file HTML của bạn
-            String filePath = "src\\main\\java\\com\\example\\demo2\\E_V.txt";
+            String filePath = "D:\\code\\clone5\\Daiphong_btl\\demo2\\src\\main\\java\\com\\example\\demo2\\E_V.txt";
 
             // Đọc file HTML
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
