@@ -8,6 +8,7 @@ module com.example.demo2 {
 //    requires jsapi;
     requires javafx.media;
     requires freetts;
+    requires jsapi;
     opens com.example.demo2 to javafx.fxml;
     exports com.example.demo2;
 }
