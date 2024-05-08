@@ -7,9 +7,7 @@ module com.example.demo2 {
     requires java.net.http;
     requires jsapi;
     requires javafx.media;
-    requires java.xml;
-//    requires jsapi;
-
+    requires freetts;
     opens com.example.demo2 to javafx.fxml;
     exports com.example.demo2;
 }
